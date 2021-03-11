@@ -16,6 +16,18 @@ inputs:
     description: Flatpak branch to build
     default: stable
     required: true
+  flatpakrepo_url:
+    description: Flatpak repo url
+    default: https://dl.russianfedora.online/repo
+    required: true
+  flatpakrepo_name:
+    description: Flatpak repo name
+    default: stable
+    required: true
+  flatpakrepo_token:
+    description: Flatpak repo token
+    default: foo
+    required: true
 outputs:
   build-dir:
     value: ${{ steps.build.outputs.build-dir }}
@@ -72,3 +84,13 @@ runs:
                         ${{ steps.find-manifest.outputs.manifest }}
         echo "::set-output name=build-dir::${FP_BUILD_DIR}"
         echo "::set-output name=build-repo::${FP_BUILD_REPO}"
+
+    - id: push-to-repo
+      shell: bash
+      env:
+        REPO_TOKEN: flatpakrepo_token
+      run: |
+        export BUILD_URL=$(flat-manager-client create ${{ inputs.flatpakrepo_url }} ${{ inputs.flatpakrepo_name }})
+        flat-manager-client push $BUILD_URL ${{ steps.find-manifest.outputs.build-repo }}
+        flat-manager-client commit --wait $BUILD_URL
+        flat-manager-client publish --wait $BUILD_URL

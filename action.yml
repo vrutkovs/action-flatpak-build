@@ -82,7 +82,7 @@ runs:
         FP_BUILD_REPO: build-repo
       run: |
         set -e
-        flatpak-builder --disable-updates --disable-download --ccache --sandbox \
+        flatpak-builder --disable-updates --disable-download --ccache \
                         --default-branch=${{ inputs.branch }} \
                         --arch=${{ inputs.arch }} \
                         --repo=${FP_BUILD_REPO} ${FP_BUILD_DIR} \
